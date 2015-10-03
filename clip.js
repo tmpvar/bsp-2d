@@ -1,39 +1,36 @@
+var intersect = require('exact-segment-intersect');
+var toFloat = require('robust-estimate-float');
 var findSide = require('./find-side');
 
-// determine the intersection point of a line segment with a line
-// original: http://paulbourke.net/geometry/pointlineplane/pdb.c
-var EPS = 0.000001;
+// scratch arrays for segline
+var ta =[0, 0];
+var tb =[0, 0];
+var tc =[0, 0];
+var td =[0, 0];
 
 function segline(x1, y1, x2, y2, x3, y3, x4, y4) {
-  var denom  = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-  var numera = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
-  var numerb = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+  ta[0] = x1;
+  ta[1] = y1;
+  tb[0] = x2;
+  tb[1] = y2;
+  tc[0] = x3;
+  tc[1] = y3;
+  td[0] = x4;
+  td[1] = y4;
 
-  // are the line coincident?
-  if (Math.abs(numera) < EPS && Math.abs(numerb) < EPS && Math.abs(denom) < EPS) {
-    return [
-      (x1 + x2) / 2,
-      (y1 + y2) / 2
-    ];
-  }
+  var r = intersect(ta, tb, tc, td)
+  var den = toFloat(r[2])
 
-  // are the line parallel?
-  if (Math.abs(denom) < EPS) {
-    return; // no intersection
-  }
-
-  // is the intersection along the the segment?
-  var mua = numera / denom;
-  var mub = numerb / denom;
-
-  if ((mua < 0) && (mua > 1) || (mub < 0) || (mub > 1)) {
+  if (!den) {
     return;
   }
 
+  // TODO: just return the homogenous vector
+
   return [
-    x1 + (mua) * (x2 - x1),
-    y1 + (mua) * (y2 - y1)
-  ]
+    toFloat(r[0]) / den,
+    toFloat(r[1]) / den
+  ];
 }
 
 function nick (poly, nickingPlanes) {
@@ -59,6 +56,12 @@ function nick (poly, nickingPlanes) {
 }
 
 function clip (poly, cuttingPlane) {
+  var plane = [
+    cuttingPlane[2] - cuttingPlane[0],
+    cuttingPlane[3] - cuttingPlane[1],
+
+  ]
+
   var left = [];
   var right = [];
 

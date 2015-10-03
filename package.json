@@ -7,7 +7,12 @@
     "test": "tape test-*.js"
   },
   "dependencies": {
-    "fc": "^1.4.3"
+    "exact-segment-intersect": "^2.0.0",
+    "fc": "^1.4.3",
+    "left-right": "^1.0.0",
+    "robust-estimate-float": "^1.0.0",
+    "robust-orientation": "^1.1.3",
+    "split-polygon": "^1.0.0"
   },
   "devDependencies": {
     "budo": "^5.1.0",
